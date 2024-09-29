@@ -1,5 +1,5 @@
 import sha1 from 'sha1';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -43,7 +43,7 @@ class UsersController {
     const userId = await redisClient.get(key);
     if (userId) {
       const users = dbClient.db.collection('users');
-      const idObject = new ObjectID(userId);
+      const idObject = new ObjectId(userId);
       users.findOne({ _id: idObject }, (err, user) => {
         if (user) {
           response.status(200).json({ id: userId, email: user.email });
