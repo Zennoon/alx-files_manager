@@ -42,7 +42,7 @@ class AuthController {
     if (userId) {
       await redisClient.del(`auth_${token}`);
       res.statusCode = 204;
-      redisClient.json({});
+      res.json({});
     } else {
       res.statusCode = 401;
       res.json({
