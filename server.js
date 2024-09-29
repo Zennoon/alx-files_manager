@@ -1,6 +1,5 @@
 import express from 'express';
 import router from './routes/index';
-import dbClient from './utils/db';
 
 const app = express();
 app.use(router);
