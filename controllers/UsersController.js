@@ -1,5 +1,5 @@
 import sha1 from 'sha1';
-import { ObjectId } from 'mongodb';
+import { ObjectID } from 'mongodb';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -55,6 +55,7 @@ class UsersController {
       console.log('Hupatikani!');
       response.status(401).json({ error: 'Unauthorized' });
     }
+  }
 }
 
 export default UsersController;
