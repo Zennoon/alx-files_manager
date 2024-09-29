@@ -37,23 +37,37 @@ class UsersController {
     }
   }
 
-  static async getMe(request, response) {
-    const token = request.header('X-Token');
-    const key = `auth_${token}`;
-    const userId = await redisClient.get(key);
-    if (userId) {
-      const users = dbClient.db.collection('users');
-      const idObject = new ObjectId(userId);
-      users.findOne({ _id: idObject }, (err, user) => {
+  static async getMe(req, res) {
+    const token = req.header('X-Token');
+    if (token) {
+      const userId = await redisClient.get(`auth_${token}`);
+      if (userId) {
+        const usersCollection = dbClient.db.collection('users');
+        const user = await usersCollection.findOne({
+          _id: new ObjectId(userId),
+        });
         if (user) {
-          response.status(200).json({ id: userId, email: user.email });
+          res.json({
+            id: userId,
+            email: user.email,
+          });
         } else {
-          response.status(401).json({ error: 'Unauthorized' });
+          res.statusCode = 401;
+          res.json({
+            error: 'Unauthorized',
+          });
         }
-      });
+      } else {
+        res.statusCode = 401;
+        res.json({
+          error: 'Unauthorized',
+        });
+      }
     } else {
-      console.log('Hupatikani!');
-      response.status(401).json({ error: 'Unauthorized' });
+      res.statusCode = 401;
+      res.json({
+        error: 'Unauthorized',
+      });
     }
   }
 }
