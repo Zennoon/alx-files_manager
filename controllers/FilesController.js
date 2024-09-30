@@ -133,6 +133,54 @@ class FilesController {
       res.json(files);
     }
   }
+
+  static async putPublish(req, res) {
+    const user = await authenticateUser(req, res);
+    if (user) {
+      const fileId = req.params.id;
+      const filesCollection = dbClient.db.collection('files');
+      const file = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+
+      if (file) {
+        await filesCollection.updateOne({ _id: new ObjectId(fileId) }, {
+          $set: { isPublic: true },
+        });
+        const updatedFile = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+        const {
+          _id: id, userId, name, type, isPublic, parentId,
+        } = updatedFile;
+        res.json({
+          id, userId, name, type, isPublic, parentId,
+        });
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
+    }
+  }
+
+  static async putUnpublish(req, res) {
+    const user = await authenticateUser(req, res);
+    if (user) {
+      const fileId = req.params.id;
+      const filesCollection = dbClient.db.collection('files');
+      const file = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+
+      if (file) {
+        await filesCollection.updateOne({ _id: new ObjectId(fileId) }, {
+          $set: { isPublic: false },
+        });
+        const updatedFile = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+        const {
+          _id: id, userId, name, type, isPublic, parentId,
+        } = updatedFile;
+        res.json({
+          id, userId, name, type, isPublic, parentId,
+        });
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
+    }
+  }
 }
 
 export default FilesController;
