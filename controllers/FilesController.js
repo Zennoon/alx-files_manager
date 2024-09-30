@@ -197,6 +197,15 @@ class FilesController {
     if (!file) {
       return res.status(404).json({ error: 'Not found' });
     }
+    if (!file.isPublic) {
+      const token = req.header('X-Token');
+      const userId = await redisClient.get(`auth_${token}`);
+      const usersCollection = dbClient.db.collection('users');
+      const user = userId ? await usersCollection.findOne({ _id: new ObjectId(userId) }) : null;
+      if (!user || (file.userId.toString() !== user._id.toString())) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+    }
     if (file.isPublic) {
       if (file.type === 'folder') {
         return res.status(400).json({ error: "A folder doesn't have content" });
@@ -209,13 +218,6 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
     } else {
-      const token = req.header('X-Token');
-      const userId = await redisClient.get(`auth_${token}`);
-      const usersCollection = dbClient.db.collection('users');
-      const user = userId ? await usersCollection.findOne({ _id: new ObjectId(userId) }) : null;
-      if (!user || (file.userId.toString() !== user._id.toString())) {
-        return res.status(404).json({ error: 'Not found' });
-      }
       if (file.type === 'folder') {
         return res.status(400).json({ error: "A folder doesn't have content" });
       }
