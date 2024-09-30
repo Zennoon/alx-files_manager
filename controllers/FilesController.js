@@ -206,12 +206,12 @@ class FilesController {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }
     try {
-      fs.readFile(file.localPath, 'utf8', (err, data) => {
+      fs.readFile(file.localPath, (err, data) => {
         if (err) {
           throw new Error('Not found');
         }
-        res.contentType = mime.lookup(file.name);
-        res.send(data.toString());
+        res.contentType = mime.contentType(file.name);
+        res.send(data);
       });
     } catch (err) {
       return res.status(404).json({ error: 'Not found' });
