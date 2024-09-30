@@ -81,6 +81,61 @@ class FilesController {
     }
     return null;
   }
+
+  static async getShow(req, res) {
+    const user = await authenticateUser(req, res);
+    if (user) {
+      const fileId = req.params.id;
+      const filesCollection = dbClient.db.collection('files');
+      const file = await filesCollection.findOne({
+        _id: new ObjectId(fileId),
+        userId: new ObjectId(user._id),
+      });
+
+      if (file) {
+        const {
+          _id: id, userId, name, type, isPublic, parentId,
+        } = file;
+        res.json({
+          id, userId, name, type, isPublic, parentId,
+        });
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
+    }
+  }
+
+  static async getIndex(req, res) {
+    const user = await authenticateUser(req, res);
+    if (user) {
+      const { parentId, page } = req.query;
+      const filesCollection = dbClient.db.collection('files');
+      const pipeline = [
+        {
+          $match: {
+            parentId: parentId ? new ObjectId(parentId) : 0,
+          },
+        },
+        {
+          $skip: page ? (parseInt(page, 10) * 20) : 0,
+        },
+        {
+          $limit: 20,
+        },
+      ];
+      const cursor = await filesCollection.aggregate(pipeline);
+      const files = [];
+      for await (const file of cursor) {
+        const {
+          _id: id, userId, name, type, isPublic, parentId,
+        } = file;
+        files.push({
+          id, userId, name, type, isPublic, parentId,
+        });
+      }
+      res.json(files);
+    }
+  }
 }
 
 export default FilesController;
