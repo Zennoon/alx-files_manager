@@ -213,10 +213,10 @@ class FilesController {
       if (file.isPublic) {
         const data = await fs.promises.readFile(file.localPath);
         const contentType = mime.contentType(file.name);
-        return res.header('Content-Type', contentType).status(200).send(data);
+        return res.header('Content-Type', contentType).send(data);
       }
       const contentType = mime.contentType(file.name);
-      return res.header('Content-Type', contentType).status(200).sendFile(file.localPath);
+      return res.header('Content-Type', contentType).sendFile(file.localPath);
     } catch (err) {
       return res.status(404).json({ error: 'Not found' });
     }
