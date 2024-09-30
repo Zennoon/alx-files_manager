@@ -206,10 +206,10 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
     }
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
     if (file.isPublic) {
-      if (file.type === 'folder') {
-        return res.status(400).json({ error: "A folder doesn't have content" });
-      }
       try {
         const data = await fs.promises.readFile(file.localPath);
         const contentType = mime.contentType(file.name);
@@ -218,9 +218,6 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
     } else {
-      if (file.type === 'folder') {
-        return res.status(400).json({ error: "A folder doesn't have content" });
-      }
       try {
         const contentType = mime.contentType(file.name);
         return res.header('Content-Type', contentType).status(200).sendFile(file.localPath);
