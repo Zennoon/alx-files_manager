@@ -139,7 +139,10 @@ class FilesController {
     if (user) {
       const fileId = req.params.id;
       const filesCollection = dbClient.db.collection('files');
-      const file = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+      const file = await filesCollection.findOne({
+        _id: new ObjectId(fileId),
+        userId: user._id,
+      });
 
       if (file) {
         await filesCollection.updateOne({ _id: new ObjectId(fileId) }, {
@@ -163,7 +166,10 @@ class FilesController {
     if (user) {
       const fileId = req.params.id;
       const filesCollection = dbClient.db.collection('files');
-      const file = await filesCollection.findOne({ _id: new ObjectId(fileId) });
+      const file = await filesCollection.findOne({
+        _id: new ObjectId(fileId),
+        userId: user._id,
+      });
 
       if (file) {
         await filesCollection.updateOne({ _id: new ObjectId(fileId) }, {
