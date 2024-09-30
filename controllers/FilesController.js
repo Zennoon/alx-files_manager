@@ -191,7 +191,7 @@ class FilesController {
   }
 
   static async getFile(req, res) {
-    const fileId = req.params;
+    const fileId = req.params.id;
     const files = dbClient.db.collection('files');
     files.findOne({ _id: new ObjectId(fileId) }, async (err, file) => {
       if (!file) {
