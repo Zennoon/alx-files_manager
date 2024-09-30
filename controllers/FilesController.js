@@ -110,19 +110,16 @@ class FilesController {
     if (user) {
       const { parentId, page } = req.query;
       const filesCollection = dbClient.db.collection('files');
-      const pipeline = [
-        {
+      const pipeline = [];
+      if (parentId) {
+        pipeline.push({
           $match: {
-            parentId: parentId ? new ObjectId(parentId) : 0,
+            parentId: parentId === '0' ? 0 : new ObjectId(parentId),
           },
-        },
-        {
-          $skip: page ? (parseInt(page, 10) * 20) : 0,
-        },
-        {
-          $limit: 20,
-        },
-      ];
+        });
+      }
+      pipeline.push({ $skip: page ? (parseInt(page, 10) * 20) : 0 });
+      pipeline.push({ $limit: 20 });
       const cursor = await filesCollection.aggregate(pipeline);
       const files = [];
       for await (const file of cursor) {
