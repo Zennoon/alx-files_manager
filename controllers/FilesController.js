@@ -205,10 +205,6 @@ class FilesController {
         }
         try {
           let fileName = file.localPath;
-          const size = req.param('size');
-          if (size) {
-            fileName = `${file.localPath}_${size}`;
-          }
           const data = await fs.promises.readFile(fileName);
           const contentType = mime.contentType(file.name);
           return res.header('Content-Type', contentType).status(200).send(data);
@@ -230,10 +226,6 @@ class FilesController {
           }
           try {
             let fileName = file.localPath;
-            const size = req.param('size');
-            if (size) {
-              fileName = `${file.localPath}_${size}`;
-            }
             const contentType = mime.contentType(file.name);
             return res.header('Content-Type', contentType).status(200).sendFile(fileName);
           } catch (error) {
