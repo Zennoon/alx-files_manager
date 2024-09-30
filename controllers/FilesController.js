@@ -1,7 +1,9 @@
 import fs from 'fs';
 import { ObjectId } from 'mongodb';
+import mime from 'mime-types';
 import { v4 } from 'uuid';
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 import authenticateUser from '../utils/utilfuncs';
 
 class FilesController {
@@ -186,6 +188,35 @@ class FilesController {
         res.status(404).json({ error: 'Not found' });
       }
     }
+  }
+
+  static async getFile(req, res) {
+    const token = req.header('X-Token');
+    const userId = await redisClient.get(`auth_${token}`);
+    const fileId = req.params.id;
+    const filesCollection = dbClient.db.collection('files');
+    const file = await filesCollection.findOne({
+      _id: new ObjectId(fileId),
+    });
+
+    if (!file || (!file.isPublic && file.userId.toString() !== userId)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
+    try {
+      fs.readFile(file.localPath, 'utf8', (err, data) => {
+        if (err) {
+          throw new Error('Not found');
+        }
+        res.contentType = mime.lookup(file.name);
+        res.send(data.toString());
+      });
+    } catch (err) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    return null;
   }
 }
 
