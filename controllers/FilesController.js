@@ -211,8 +211,12 @@ class FilesController {
     }
     try {
       if (file.isPublic) {
-        const data = await fs.promises.readFile(file.localPath);
-        return res.header('Content-Type', mime.contentType(file.name)).send(data);
+        fs.readFile(file.localPath, (err, data) => {
+          if (err) {
+            throw new Error();
+          }
+          return res.header('Content-Type', mime.contentType(file.name)).send(data);
+        });
       }
       return res.header('Content-Type', mime.contentType(file.name)).sendFile(file.localPath);
     } catch (err) {
