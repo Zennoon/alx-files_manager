@@ -211,7 +211,7 @@ class FilesController {
     }
     try {
       if (file.isPublic) {
-        fs.readFile(file.localPath, (err, data) => {
+        return fs.readFile(file.localPath, (err, data) => {
           if (err) {
             throw new Error();
           }
