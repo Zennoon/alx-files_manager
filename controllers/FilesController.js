@@ -211,18 +211,15 @@ class FilesController {
     }
     try {
       if (file.isPublic) {
-        fs.readFile(file.localPath, (err, data) => {
-          if (!err) {
-            res.header('Content-Type', mime.contentType(file.name)).send(data);
-          }
-        });
-      } else {
-        res.header('Content-Type', mime.contentType(file.name)).sendFile(file.localPath);
+        const data = await fs.promises.readFile(file.localPath);
+        const contentType = mime.contentType(file.name);
+        return res.header('Content-Type', contentType).status(200).send(data);
       }
+      const contentType = mime.contentType(file.name);
+      return res.header('Content-Type', contentType).status(200).sendFile(file.localPath);
     } catch (err) {
-      res.status(404).json({ error: 'Not found' });
+      return res.status(404).json({ error: 'Not found' });
     }
-    return null;
   }
 }
 
