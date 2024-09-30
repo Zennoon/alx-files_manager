@@ -204,12 +204,10 @@ class FilesController {
           return res.status(400).json({ error: "A folder doesn't have content" });
         }
         try {
-          let fileName = file.localPath;
-          const data = await fs.promises.readFile(fileName);
+          const data = await fs.promises.readFile(file.localPath);
           const contentType = mime.contentType(file.name);
           return res.header('Content-Type', contentType).status(200).send(data);
         } catch (error) {
-          console.log(error);
           return res.status(404).json({ error: 'Not found' });
         }
       } else {
@@ -225,15 +223,12 @@ class FilesController {
             return res.status(400).json({ error: "A folder doesn't have content" });
           }
           try {
-            let fileName = file.localPath;
             const contentType = mime.contentType(file.name);
-            return res.header('Content-Type', contentType).status(200).sendFile(fileName);
+            return res.header('Content-Type', contentType).status(200).sendFile(file.localPath);
           } catch (error) {
-            console.log(error);
             return res.status(404).json({ error: 'Not found' });
           }
         } else {
-          console.log(`Wrong user: file.userId=${file.userId}; userId=${user._id}`);
           return res.status(404).json({ error: 'Not found' });
         }
       }
