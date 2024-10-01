@@ -1,10 +1,13 @@
 import fs from 'fs';
+import Queue from 'bull';
 import { ObjectId } from 'mongodb';
 import mime from 'mime-types';
 import { v4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 import authenticateUser from '../utils/utilfuncs';
+
+const fileQueue = new Queue('fileQueue', 'redis://127.0.0.1:6379');
 
 class FilesController {
   static async postUpload(req, res) {
@@ -72,6 +75,12 @@ class FilesController {
         parentId: parentId ? new ObjectId(parentId) : 0,
         localPath: filePath,
       });
+      if (type === 'image') {
+        await fileQueue.add({
+          userId: user._id,
+          fileId: result.insertedId,
+        });
+      }
       return res.status(201).json({
         id: result.insertedId.toString(),
         userId: user._id,
@@ -210,11 +219,12 @@ class FilesController {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }
     try {
+      const { size } = req.query;
       if (file.isPublic) {
-        const data = await fs.promises.readFile(file.localPath);
+        const data = await fs.promises.readFile(`${file.localPath}${size ? '_'.concat(size) : ''}`);
         return res.header('Content-Type', mime.contentType(file.name)).send(data);
       }
-      return res.header('Content-Type', mime.contentType(file.name)).sendFile(file.localPath);
+      return res.header('Content-Type', mime.contentType(file.name)).sendFile(`${file.localPath}${size ? '_'.concat(size) : ''}`);
     } catch (err) {
       return res.status(404).json({ error: 'Not found' });
     }
