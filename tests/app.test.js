@@ -5,12 +5,19 @@ import { expect } from 'chai';
 const baseUrl = 'http://localhost:5000';
 
 describe('appController', function() {
-  it('test for the GET /status endpoint', function(done) {
+  it('test for the GET /status endpoint headers', function(done) {
     request.get(baseUrl.concat('/status'), function(err, res) {
       if (!err) {
         expect(res.statusCode).to.equal(200);
         expect(res.headers['content-type']).to.include('application/json');
+      }
+      done();
+    });
+  });
 
+  it('test for the GET /status endpoint body', function(done) {
+    request.get(baseUrl.concat('/status'), function(err, res) {
+      if (!err) {
         const json = JSON.parse(res.body);
         expect(json).to.haveOwnProperty('redis');
         expect(json.redis).to.equal(true || false);
@@ -21,12 +28,19 @@ describe('appController', function() {
     });
   });
 
-  it('test for the GET /stats endpoint', function(done) {
+  it('test for the GET /stats endpoint headers', function(done) {
     request.get(baseUrl.concat('/stats'), function(err, res) {
       if (!err) {
         expect(res.statusCode).to.equal(200);
         expect(res.headers['content-type']).to.include('application/json');
+      }
+      done();
+    });
+  });
 
+  it('test for the GET /stats endpoint body', function(done) {
+    request.get(baseUrl.concat('/stats'), function(err, res) {
+      if (!err) {
         const json = JSON.parse(res.body);
         expect(json).to.haveOwnProperty('users');
         expect(json.users).to.be.a('Number');
